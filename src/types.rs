@@ -727,6 +727,7 @@ pub enum ChallengeType {
     Unknown(String),
 }
 
+#[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum ChallengeStatus {

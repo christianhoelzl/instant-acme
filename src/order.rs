@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::ops::{ControlFlow, Deref};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
@@ -15,7 +14,7 @@ use crate::types::{
     Authorization, AuthorizationState, AuthorizationStatus, AuthorizedIdentifier, Challenge,
     ChallengeType, DeviceAttestation, Empty, FinalizeRequest, OrderState, OrderStatus, Problem,
 };
-use crate::{Error, Key, crypto, nonce_from_response, retry_after};
+use crate::{ChallengeStatus, Error, Key, crypto, nonce_from_response, retry_after};
 
 /// An ACME order as described in RFC 8555 (section 7.1.3)
 ///
@@ -466,13 +465,19 @@ impl ChallengeHandle<'_> {
     pub async fn send_device_attestation(
         &mut self,
         payload: &DeviceAttestation<'_>,
-    ) -> Result<(), Error> {
+    ) -> Result<ChallengeStatus, Error> {
         if self.challenge.r#type != ChallengeType::DeviceAttest01 {
             return Err(Error::Str("challenge type should be device-attest-01"));
         }
 
-        let payload = DeviceAttestation {
-            att_obj: Cow::Owned(BASE64_URL_SAFE_NO_PAD.encode(&payload.att_obj).into()),
+        #[derive(Debug, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct DeviceAttestationBase64 {
+            att_obj: String,
+        }
+
+        let payload = DeviceAttestationBase64 {
+            att_obj: BASE64_URL_SAFE_NO_PAD.encode(&payload.att_obj),
         };
 
         let rsp = self
@@ -484,7 +489,7 @@ impl ChallengeHandle<'_> {
         let response = Problem::check::<Challenge>(rsp).await?;
         match response.error {
             Some(details) => Err(Error::Api(details)),
-            None => Ok(()),
+            None => Ok(response.status),
         }
     }
 

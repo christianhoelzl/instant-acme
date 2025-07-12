@@ -47,9 +47,9 @@ mod types;
 pub use types::RenewalInfo;
 pub use types::{
     AccountCredentials, Authorization, AuthorizationState, AuthorizationStatus,
-    AuthorizedIdentifier, CertificateIdentifier, Challenge, ChallengeType, Error, Identifier,
-    LetsEncrypt, NewAccount, NewOrder, OrderState, OrderStatus, Problem, ProfileMeta,
-    RevocationReason, RevocationRequest, ZeroSsl,
+    AuthorizedIdentifier, CertificateIdentifier, Challenge, ChallengeStatus, ChallengeType,
+    DeviceAttestation, Error, Identifier, LetsEncrypt, NewAccount, NewOrder, OrderState,
+    OrderStatus, Problem, ProfileMeta, RevocationReason, RevocationRequest, ZeroSsl,
 };
 use types::{Directory, JoseJson, Signer};
 
