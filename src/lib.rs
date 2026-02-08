@@ -45,10 +45,11 @@ mod types;
 pub use types::{
     AccountCredentials, Authorization, AuthorizationState, AuthorizationStatus,
     AuthorizedIdentifier, CertificateIdentifier, Challenge, ChallengeStatus, ChallengeType,
-    DeviceAttestation, Error, Identifier, LetsEncrypt, NewAccount, NewOrder, OrderState,
-    OrderStatus, Problem, ProfileMeta, RevocationReason, RevocationRequest, Subproblem, ZeroSsl,
+    DeviceAttestation, Directory, Error, Identifier, LetsEncrypt, Meta, NewAccount, NewOrder,
+    OrderState, OrderStatus, Problem, ProfileMeta, RevocationReason, RevocationRequest, Subproblem,
+    ZeroSsl,
 };
-use types::{Directory, JoseJson, Signer};
+use types::{JoseJson, Signer};
 #[cfg(feature = "time")]
 pub use types::{RenewalInfo, SuggestedWindow};
 
@@ -154,6 +155,11 @@ impl Client {
             Some(nonce) => Ok(nonce),
             None => Err("no nonce found in newNonce response".into()),
         }
+    }
+
+    /// Get the directory information
+    pub(crate) fn get_directory(&self) -> Directory {
+        self.directory.clone()
     }
 }
 

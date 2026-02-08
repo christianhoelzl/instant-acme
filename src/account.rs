@@ -24,9 +24,9 @@ use serde::{Deserialize, Serialize};
 use crate::DefaultClient;
 use crate::order::Order;
 use crate::types::{
-    AccountCredentials, AuthorizationStatus, Empty, Header, JoseJson, Jwk, KeyOrKeyId, NewAccount,
-    NewAccountPayload, NewOrder, OrderState, Problem, ProfileMeta, RevocationRequest, Signer,
-    SigningAlgorithm,
+    AccountCredentials, AuthorizationStatus, Directory, Empty, Header, JoseJson, Jwk, KeyOrKeyId,
+    NewAccount, NewAccountPayload, NewOrder, OrderState, Problem, ProfileMeta, RevocationRequest,
+    Signer, SigningAlgorithm,
 };
 #[cfg(feature = "time")]
 use crate::types::{CertificateIdentifier, RenewalInfo};
@@ -423,6 +423,16 @@ impl AccountBuilder {
         Ok(Account {
             inner: Arc::new(AccountInner::from_credentials(credentials, self.http).await?),
         })
+    }
+
+    /// Reads the server directory without creating an account.
+    ///
+    /// This is useful if you want to check the directory metadata before establishing an
+    /// account on the ACME server. The metadata contains information on available profiles
+    /// or if an external account binding is required.
+    pub async fn fetch_server_directory(self, directory_url: String) -> Result<Directory, Error> {
+        let client = Client::new(directory_url, self.http).await?;
+        Ok(client.get_directory())
     }
 
     /// Create a new account on the `directory_url` with the information in [`NewAccount`]

@@ -538,30 +538,42 @@ pub struct NewAccount<'a> {
     pub only_return_existing: bool,
 }
 
+/// ACME directory information
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct Directory {
-    pub(crate) new_nonce: String,
-    pub(crate) new_account: String,
-    pub(crate) new_order: String,
+#[allow(missing_docs)]
+pub struct Directory {
+    pub new_nonce: String,
+    pub new_account: String,
+    pub new_order: String,
     // The fields below were added later and old `AccountCredentials` may not have it.
     // Newer deserialized account credentials grab a fresh set of `Directory` on
     // deserialization, so they should be fine. Newer fields should be optional, too.
-    pub(crate) new_authz: Option<String>,
-    pub(crate) revoke_cert: Option<String>,
-    pub(crate) key_change: Option<String>,
+    pub new_authz: Option<String>,
+    pub revoke_cert: Option<String>,
+    pub key_change: Option<String>,
     // Endpoint for the ACME renewal information (ARI) extension
     //
     // <https://www.rfc-editor.org/rfc/rfc9773.html>
-    pub(crate) renewal_info: Option<String>,
+    pub renewal_info: Option<String>,
     #[serde(default)]
-    pub(crate) meta: Meta,
+    pub meta: Meta,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub(crate) struct Meta {
+#[serde(rename_all = "camelCase")]
+#[allow(missing_docs)]
+pub struct Meta {
     #[serde(default)]
-    pub(crate) profiles: HashMap<String, String>,
+    pub terms_of_service: Option<String>,
+    #[serde(default)]
+    pub website: Option<String>,
+    #[serde(default)]
+    pub caa_identities: Option<Vec<String>>,
+    #[serde(default)]
+    pub external_account_required: Option<bool>,
+    #[serde(default)]
+    pub profiles: HashMap<String, String>,
 }
 
 /// Profile meta information from the server directory
