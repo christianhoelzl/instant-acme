@@ -68,13 +68,23 @@ impl Account {
             Ok(root_der) => root_der,
             Err(err) => return Err(Error::Other(err.into())),
         };
+        Self::builder_with_many_roots(vec![root_der])
+    }
 
-        let mut roots = RootCertStore::empty();
-        match roots.add(root_der) {
-            Ok(()) => Ok(AccountBuilder {
-                http: Box::new(DefaultClient::with_roots(roots)?),
+    /// Create an account builder with an HTTP client configured using a custom root store
+    ///
+    /// This is useful if your ACME connection can only be validated with a trust store different
+    /// from the system store or a single pem file.
+    #[cfg(feature = "hyper-rustls")]
+    pub fn builder_with_many_roots(
+        roots: Vec<CertificateDer<'_>>,
+    ) -> Result<AccountBuilder, Error> {
+        let mut root_store = RootCertStore::empty();
+        match root_store.add_parsable_certificates(roots) {
+            (_, 0) => Ok(AccountBuilder {
+                http: Box::new(DefaultClient::with_roots(root_store)?),
             }),
-            Err(err) => Err(Error::Other(err.into())),
+            _ => Err(Error::Str("Invalid root certificate")),
         }
     }
 
