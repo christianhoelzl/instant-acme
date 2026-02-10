@@ -15,7 +15,7 @@ use crate::types::{
     Authorization, AuthorizationState, AuthorizationStatus, AuthorizedIdentifier, Challenge,
     ChallengeType, DeviceAttestation, Empty, FinalizeRequest, OrderState, OrderStatus, Problem,
 };
-use crate::{Error, Key, crypto, nonce_from_response, retry_after};
+use crate::{ChallengeStatus, Error, Key, crypto, nonce_from_response, retry_after};
 
 /// An ACME order as described in RFC 8555 (section 7.1.3)
 ///
@@ -465,7 +465,7 @@ impl ChallengeHandle<'_> {
     pub async fn send_device_attestation(
         &mut self,
         payload: &DeviceAttestation<'_>,
-    ) -> Result<(), Error> {
+    ) -> Result<ChallengeStatus, Error> {
         if self.challenge.r#type != ChallengeType::DeviceAttest01 {
             return Err(Error::Str("challenge type should be device-attest-01"));
         }
@@ -483,7 +483,7 @@ impl ChallengeHandle<'_> {
         let response = Problem::check::<Challenge>(rsp).await?;
         match response.error {
             Some(details) => Err(Error::Api(details)),
-            None => Ok(()),
+            None => Ok(response.status),
         }
     }
 

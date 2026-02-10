@@ -730,6 +730,7 @@ pub enum ChallengeType {
     Unknown(String),
 }
 
+/// Status of an ACME challenge [Challenge](crate::Challenge)
 #[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
